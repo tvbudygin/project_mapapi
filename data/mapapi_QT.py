@@ -12,13 +12,19 @@ class Example(QWidget):
     def __init__(self):
         super().__init__()
         self.spn = 0.002
+        self.k1 = 37.595348
+        self.k2 = 55.82720
+        self.ogr1 = self.k1 - 0.2
+        self.ogr2 = self.k1 + 0.2
+        self.ogr3 = self.k2 + 0.2
+        self.ogr4 = self.k2 - 0.2
         self.getImage()
         self.initUI()
 
     def getImage(self):
         server_address = 'https://static-maps.yandex.ru/v1?'
         api_key = '7099749a-10db-45e9-82e2-dcdebe051633'
-        ll_spn = f'll=37.595348,55.827206&spn={self.spn},{self.spn}'
+        ll_spn = f'll={self.k1},{self.k2}&spn={self.spn},{self.spn}'
 
         map_request = f"{server_address}{ll_spn}&apikey={api_key}"
         response = requests.get(map_request)
@@ -38,12 +44,28 @@ class Example(QWidget):
         self.setWindowTitle('Отображение карты')
 
         self.up = QPushButton('PgUp', self)
-        self.up.move(10, 100)
+        self.up.move(10, 10)
         self.up.clicked.connect(self.up_f)
 
         self.down = QPushButton('PgDown', self)
-        self.down.move(10, 200)
+        self.down.move(10, 50)
         self.down.clicked.connect(self.down_f)
+
+        self.up1 = QPushButton('вверх', self)
+        self.up1.move(10, 90)
+        self.up1.clicked.connect(self.up_f2)
+
+        self.down1 = QPushButton('вниз', self)
+        self.down1.move(10, 130)
+        self.down1.clicked.connect(self.down_f2)
+
+        self.left = QPushButton('вправо', self)
+        self.left.move(10, 170)
+        self.left.clicked.connect(self.right_f)
+
+        self.right = QPushButton('влево', self)
+        self.right.move(10, 210)
+        self.right.clicked.connect(self.left_f)
 
         self.pixmap = QPixmap(self.map_file)
         self.image = QLabel(self)
@@ -67,6 +89,26 @@ class Example(QWidget):
     def down_f(self):
         if self.spn > 0.001:
             self.spn /= 1.5
+            self.update_map()
+
+    def up_f2(self):
+        if self.k2 < self.ogr3:
+            self.k2 += self.spn / 2
+            self.update_map()
+
+    def down_f2(self):
+        if self.k2 > self.ogr4:
+            self.k2 -= self.spn / 2
+            self.update_map()
+
+    def left_f(self):
+        if self.k1 > self.ogr1:
+            self.k1 -= self.spn / 2
+            self.update_map()
+
+    def right_f(self):
+        if self.k1 < self.ogr2:
+            self.k1 += self.spn / 2
             self.update_map()
 
 
