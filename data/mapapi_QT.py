@@ -18,6 +18,7 @@ class Example(QWidget):
         self.ogr2 = self.k1 + 0.2
         self.ogr3 = self.k2 + 0.2
         self.ogr4 = self.k2 - 0.2
+        self.theme = "light"
         self.getImage()
         self.initUI()
 
@@ -26,8 +27,12 @@ class Example(QWidget):
         api_key = '7099749a-10db-45e9-82e2-dcdebe051633'
         ll_spn = f'll={self.k1},{self.k2}&spn={self.spn},{self.spn}'
 
+        params = {
+            "theme": self.theme
+        }
+
         map_request = f"{server_address}{ll_spn}&apikey={api_key}"
-        response = requests.get(map_request)
+        response = requests.get(map_request, params=params)
 
         if not response:
             print("Ошибка выполнения запроса:")
@@ -66,6 +71,10 @@ class Example(QWidget):
         self.right = QPushButton('влево', self)
         self.right.move(10, 210)
         self.right.clicked.connect(self.left_f)
+
+        self.dark = QPushButton(f'тёмная/\nсветлая', self)
+        self.dark.move(10, 250)
+        self.dark.clicked.connect(self.dark_f)
 
         self.pixmap = QPixmap(self.map_file)
         self.image = QLabel(self)
@@ -110,6 +119,13 @@ class Example(QWidget):
         if self.k1 < self.ogr2:
             self.k1 += self.spn / 2
             self.update_map()
+
+    def dark_f(self):
+        if self.theme == "light":
+            self.theme = "dark"
+        else:
+            self.theme = "light"
+        self.update_map()
 
 
 if __name__ == '__main__':
