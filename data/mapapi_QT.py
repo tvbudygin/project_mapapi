@@ -3,7 +3,7 @@ import sys
 
 import requests
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QPushButton
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit
 
 SCREEN_SIZE = [600, 450]
 
@@ -19,6 +19,7 @@ class Example(QWidget):
         self.ogr3 = self.k2 + 0.2
         self.ogr4 = self.k2 - 0.2
         self.theme = "light"
+        self.pt = ""
         self.getImage()
         self.initUI()
 
@@ -28,7 +29,8 @@ class Example(QWidget):
         ll_spn = f'll={self.k1},{self.k2}&spn={self.spn},{self.spn}'
 
         params = {
-            "theme": self.theme
+            "theme": self.theme,
+            "pt": {self.pt}
         }
 
         map_request = f"{server_address}{ll_spn}&apikey={api_key}"
@@ -76,6 +78,14 @@ class Example(QWidget):
         self.dark.move(10, 250)
         self.dark.clicked.connect(self.dark_f)
 
+        self.objc = QLineEdit(self)
+        self.objc.move(10, 420)
+        self.objc.resize(100, 20)
+
+        self.fin = QPushButton(f'Искать', self)
+        self.fin.move(125, 415)
+        self.fin.clicked.connect(self.find_f)
+
         self.pixmap = QPixmap(self.map_file)
         self.image = QLabel(self)
         self.image.move(100, 0)
@@ -86,6 +96,17 @@ class Example(QWidget):
         self.getImage()
         self.pixmap = QPixmap(self.map_file)
         self.image.setPixmap(self.pixmap)
+
+    def geocode_f(self, geocode):
+        server_address = 'http://geocode-maps.yandex.ru/1.x/?'
+        api_key = '8013b162-6b42-4997-9691-77b7074026e0'
+
+        geocoder_request = f'{server_address}apikey={api_key}&geocode={geocode}&format=json'
+        response = requests.get(geocoder_request)
+        json_response = response.json()
+        toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+        coodrinates = toponym["Point"]["pos"].split()
+        return coodrinates
 
     def closeEvent(self, event):
         os.remove(self.map_file)
@@ -126,6 +147,15 @@ class Example(QWidget):
         else:
             self.theme = "light"
         self.update_map()
+
+    def find_f(self):
+        t = self.objc.text()
+        if t:
+            t1 = self.geocode_f(t)
+            self.k1 = float(t1[0])
+            self.k2 = float(t1[1])
+            self.pt = ",".join(t1)
+            self.update_map()
 
 
 if __name__ == '__main__':
