@@ -3,7 +3,7 @@ import sys
 
 import requests
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit, QTextBrowser
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit, QTextBrowser, QCheckBox
 
 SCREEN_SIZE = [600, 450]
 
@@ -80,6 +80,9 @@ class Example(QWidget):
         self.dark.move(10, 250)
         self.dark.clicked.connect(self.dark_f)
 
+        self.mail = QCheckBox(f'почтовый\nиндекс', self)
+        self.mail.move(10, 310)
+
         self.objc = QLineEdit(self)
         self.objc.move(10, 420)
         self.objc.resize(100, 20)
@@ -107,7 +110,7 @@ class Example(QWidget):
         self.pixmap = QPixmap(self.map_file)
         self.image.setPixmap(self.pixmap)
 
-    def geocode_f(self, geocode):
+    def geocode_f(self, geocode, mail):
         server_address = 'http://geocode-maps.yandex.ru/1.x/?'
         api_key = '8013b162-6b42-4997-9691-77b7074026e0'
 
@@ -116,6 +119,17 @@ class Example(QWidget):
         json_response = response.json()
         toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
         toponym_address = toponym["metaDataProperty"]["GeocoderMetaData"]["text"]
+        if mail:
+            num = False
+            for i in geocode:
+                if i.isdigit():
+                    num = True
+                    break
+            if num:
+                toponym_mail = toponym["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
+                toponym_address += f", {toponym_mail}"
+            else:
+                toponym_address += f", введите адресс где есть номер дома"
         coodrinates = toponym["Point"]["pos"].split()
         return coodrinates, toponym_address
 
@@ -162,7 +176,7 @@ class Example(QWidget):
     def find_f(self):
         t = self.objc.text()
         if t:
-            t1 = self.geocode_f(t)
+            t1 = self.geocode_f(t, self.mail.isChecked())
             self.k1 = float(t1[0][0])
             self.k2 = float(t1[0][1])
             self.pt = ",".join(t1[0])
