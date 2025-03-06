@@ -82,6 +82,7 @@ class Example(QWidget):
 
         self.mail = QCheckBox(f'почтовый\nиндекс', self)
         self.mail.move(10, 310)
+        self.mail.stateChanged.connect(self.find_f)
 
         self.objc = QLineEdit(self)
         self.objc.move(10, 420)
