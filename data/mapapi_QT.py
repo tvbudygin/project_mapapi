@@ -3,7 +3,7 @@ import sys
 
 import requests
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit, QTextBrowser
 
 SCREEN_SIZE = [600, 450]
 
@@ -92,6 +92,10 @@ class Example(QWidget):
         self.dark.move(210, 415)
         self.dark.clicked.connect(self.clear_f)
 
+        self.adress = QTextBrowser(self)
+        self.adress.resize(150, 30)
+        self.adress.move(440, 415)
+
         self.pixmap = QPixmap(self.map_file)
         self.image = QLabel(self)
         self.image.move(100, 0)
@@ -111,8 +115,9 @@ class Example(QWidget):
         response = requests.get(geocoder_request)
         json_response = response.json()
         toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+        toponym_address = toponym["metaDataProperty"]["GeocoderMetaData"]["text"]
         coodrinates = toponym["Point"]["pos"].split()
-        return coodrinates
+        return coodrinates, toponym_address
 
     def closeEvent(self, event):
         os.remove(self.map_file)
@@ -158,14 +163,16 @@ class Example(QWidget):
         t = self.objc.text()
         if t:
             t1 = self.geocode_f(t)
-            self.k1 = float(t1[0])
-            self.k2 = float(t1[1])
-            self.pt = ",".join(t1)
+            self.k1 = float(t1[0][0])
+            self.k2 = float(t1[0][1])
+            self.pt = ",".join(t1[0])
+            self.adress.setText(t1[1])
             self.update_map()
 
     def clear_f(self):
         self.k1 = self.k1_defalt
         self.k2 = self.k2_defalt
+        self.adress.setText("")
         self.update_map()
 
 
