@@ -14,6 +14,8 @@ class Example(QWidget):
         self.spn = 0.002
         self.k1 = 37.595348
         self.k2 = 55.82720
+        self.k1_defalt = 37.595348
+        self.k2_defalt = 55.82720
         self.ogr1 = self.k1 - 0.2
         self.ogr2 = self.k1 + 0.2
         self.ogr3 = self.k2 + 0.2
@@ -86,6 +88,10 @@ class Example(QWidget):
         self.fin.move(125, 415)
         self.fin.clicked.connect(self.find_f)
 
+        self.dark = QPushButton(f'Сброс поискового результата', self)
+        self.dark.move(210, 415)
+        self.dark.clicked.connect(self.clear_f)
+
         self.pixmap = QPixmap(self.map_file)
         self.image = QLabel(self)
         self.image.move(100, 0)
@@ -156,6 +162,11 @@ class Example(QWidget):
             self.k2 = float(t1[1])
             self.pt = ",".join(t1)
             self.update_map()
+
+    def clear_f(self):
+        self.k1 = self.k1_defalt
+        self.k2 = self.k2_defalt
+        self.update_map()
 
 
 if __name__ == '__main__':
