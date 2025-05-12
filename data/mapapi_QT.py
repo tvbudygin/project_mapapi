@@ -4,6 +4,7 @@ import sys
 import requests
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit, QTextBrowser, QCheckBox
+from PyQt6.QtCore import Qt
 
 SCREEN_SIZE = [600, 450]
 
@@ -24,6 +25,20 @@ class Example(QWidget):
         self.pt = ""
         self.getImage()
         self.initUI()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Up:
+            self.up_f2()
+        if event.key() == Qt.Key.Key_Down:
+            self.down_f2()
+        if event.key() == Qt.Key.Key_Right:
+            self.right_f()
+        if event.key() == Qt.Key.Key_Left:
+            self.left_f()
+        if event.key() == Qt.Key.Key_W:
+            self.up_f()
+        if event.key() == Qt.Key.Key_S:
+            self.down_f()
 
     def getImage(self):
         server_address = 'https://static-maps.yandex.ru/v1?'
@@ -49,6 +64,8 @@ class Example(QWidget):
             file.write(response.content)
 
     def initUI(self):
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setFocus()
         self.setGeometry(100, 100, *SCREEN_SIZE)
         self.setWindowTitle('Отображение карты')
 
